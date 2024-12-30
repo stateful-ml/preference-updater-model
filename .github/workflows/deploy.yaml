@@ -1,0 +1,51 @@
+name: Promote and Call Deployment Manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Model identifier or alias (<name>/<version> or <name>@stg)
+        required: true
+      stage:
+        description: Stage corresponds to the deployment environment
+        required: true
+        type: choice
+        options:
+          - stg
+          - prd
+        default: stg
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install mlflow
+        run: pip install mlflow
+
+      - name: Promote model
+        id: promote
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_TOKEN: ${{ secrets.MLFLOW_TRACKING_TOKEN }}
+        run: python .github/workflows/promote.py --identifier ${{ inputs.model }} --stage ${{ inputs.stage }}
+
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.STATEFUL_ML_PAT }}
+          repository: stateful-ml/deployment-manager
+          event-type: model_update
+          client-payload: >
+            {
+              "environment": "${{ inputs.stage }}",
+              "key": "models.preference-updater",
+              "value": "${{ steps.promote.outputs.identifier }}"
+            }
