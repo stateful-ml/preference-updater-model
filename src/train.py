@@ -7,12 +7,12 @@ dotenv.load_dotenv()
 
 
 def main():
-    mlflow.set_experiment("Embedder approach 1")
+    mlflow.set_experiment("Preference updater approach 1")
     with mlflow.start_run():
         log_model(
             artifact_path="model",
             python_model=model.__file__,
-            registered_model_name=model.Embedder.__name__.lower(),
+            registered_model_name=model.PreferenceUpdater.__name__.lower(),
         )
 
 

@@ -3,11 +3,12 @@ import mlflow
 from mlflow.models import set_model
 
 
-class Embedder(mlflow.pyfunc.PythonModel):
+class PreferenceUpdater(mlflow.pyfunc.PythonModel):
     def load_context(self, context):
         pass
 
     def predict(self, context, model_input):
         return np.random.random(len(model_input))
 
-set_model(Embedder())
+
+set_model(PreferenceUpdater())
