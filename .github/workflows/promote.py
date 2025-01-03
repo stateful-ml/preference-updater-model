@@ -2,7 +2,6 @@ from __future__ import annotations
 import os
 import re
 import mlflow
-from mlflow.exceptions import MlflowException
 import argparse
 from typing import cast
 from enum import Enum
@@ -21,7 +20,7 @@ def parse_args():
         dest="requested_stage",
         required=True,
         type=Stage,
-        choices=[stage.value for stage in Stage],
+        choices=list(Stage),
         help="the stage parameter is actually redundant and is used for missclick protection",
     )
     return cast(Args, parser.parse_args())
@@ -59,6 +58,10 @@ class Stage(Enum):
 def parse_model(identifier: str) -> tuple[str, str]:
     if "/" in identifier and "@" in identifier:
         raise ValueError(f"Both '/' and '@' are in identifier = {identifier}")
+    elif "/" not in identifier and "@" not in identifier:
+        raise ValueError(
+            "A valid model identifier must either contain a version (foo/42) or alias (foo@stg)"
+        )
     name, label = re.split(r"[@/]", identifier)
     return name, label
 

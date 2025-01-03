@@ -34,7 +34,6 @@ jobs:
         id: promote
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-          MLFLOW_TRACKING_TOKEN: ${{ secrets.MLFLOW_TRACKING_TOKEN }}
         run: python .github/workflows/promote.py --identifier ${{ inputs.model }} --stage ${{ inputs.stage }}
 
       - name: Repository Dispatch
